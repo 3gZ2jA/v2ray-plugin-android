@@ -1,0 +1,64 @@
+#
+# This is free software, lisence use MIT.
+# 
+# Copyright (C) 2019 KFERMercer <KFER.Mercer@gmail.com>
+# 
+# <https://github.com/KFERMercer/OpenWrt-CI>
+#
+
+name: Merge-upstream
+
+on:
+  push:
+    branches: 
+      - master
+  schedule:
+    - cron: 10/30 * * * *
+
+jobs:
+  merge:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+      with:
+        ref: master
+        fetch-depth: 0
+        lfs: true
+
+    - name: Set git identity
+      run : |
+        git config --global user.email "lqbz@live.com"
+        git config --global user.name "3gZ2jA"
+
+    - name: ls
+      run:  ls -la
+
+    - name: Move wk
+      run: mv .github .github.bak
+
+    - name: ls
+      run:  ls -la
+
+    - name: Load upstream commits
+      run : |
+        git remote add offical https://github.com/shadowsocks/v2ray-plugin-android.git
+        git fetch offical
+        git pull offical master
+
+    - name: Remove wk
+      run: rm -rf ./.github
+
+    - name: Move wk
+      run: mv .github.bak .github 
+
+    - name: ls
+      run:  ls -la .github/workflows
+
+    - name: Push Commits
+      env:
+        DOWNSTREAM_BRANCH: master
+      run: git push origin $DOWNSTREAM_BRANCH --tags  
